@@ -1,7 +1,7 @@
 {
   "Menu": {
     "Alas": {
-      "name": "AL HAD AzurLane Hyper Autonomous Driving",
+      "name": "港区OA",
       "help": ""
     },
     "Farm": {
@@ -35,7 +35,7 @@
   },
   "Task": {
     "Alas": {
-      "name": "Alas设置",
+      "name": "OA设置",
       "help": ""
     },
     "General": {
@@ -2945,7 +2945,7 @@
       "ClickToUpdate": "有可用更新nanoda!"
     },
     "Status": {
-      "Running": "运行中nanoda!",
+      "Running": "秘书舰正在处理",
       "Inactive": "雪风大人在偷懒nanoda",
       "Warning": "发生错误",
       "Updating": "等待更新"
