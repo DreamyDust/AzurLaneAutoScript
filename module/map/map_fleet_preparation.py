@@ -1,6 +1,8 @@
 import numpy as np
 from scipy import signal
 
+# 此文件处理进入关卡前的编队准备（Fleet Preparation）逻辑。
+# 包含编队的选择与重置、潜艇部署设置以及满足困难地图条件限制的检查、请求人工接管等操作。
 from module.base.button import Button
 from module.base.timer import Timer
 from module.base.utils import *
@@ -354,8 +356,6 @@ class FleetPreparation(InfoHandler):
                     pass
                 else:
                     submarine.clear()
-            else:
-                self.config.SUBMARINE = 0
             return False
 
         # Submarine.

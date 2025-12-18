@@ -1,3 +1,5 @@
+# 此文件实现了演习（Exercise）模式下的血量实时监控逻辑。
+# 它通过图像识别计算攻守双方的 HP 百分比，并在己方血量过低时触发相应逻辑以保护单局胜率或撤退。
 from module.base.base import ModuleBase
 from module.base.timer import Timer
 from module.base.utils import color_bar_percentage
@@ -74,7 +76,6 @@ class HpDaemon(ModuleBase):
             PAUSE_Seaside,
             PAUSE_Star,
             PAUSE_Ninja,
-            PAUSE_ShadowPuppetry
         ]:
             self.attacker_hp = self._calculate_hp(image, area=ATTACKER_HP_AREA_New.area, reverse=True)
             self.defender_hp = self._calculate_hp(image, area=DEFENDER_HP_AREA_New.area, reverse=True)

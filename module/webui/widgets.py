@@ -1,5 +1,8 @@
 import copy
+# 此文件定义了 WebUI 中使用的各种自定义交互图形组件（Widgets）。
+# 包含彩色实时日志渲染器（RichLog）、状态感知切换按钮以及图标按钮组等高度定制化的可视化组件。
 import json
+import pywebio.pin
 import random
 import string
 from typing import Any, Callable, Dict, Generator, List, Optional, TYPE_CHECKING, Union
@@ -74,6 +77,8 @@ class ScrollableCode:
 
 
 class RichLog:
+    last_display_time: dict
+
     def __init__(self, scope, font_width="0.559") -> None:
         self.scope = scope
         self.font_width = font_width
@@ -93,6 +98,10 @@ class RichLog:
         # self._callback_thread = None
         # self._width = 80
         self.keep_bottom = True
+        self.display_dashboard = True
+        self.first_display = True
+        self.last_display_time = {}
+        self.dashboard_arg_group = None
         if State.theme == "dark":
             self.terminal_theme = DARK_TERMINAL_THEME
         else:
@@ -137,6 +146,11 @@ class RichLog:
     def set_scroll(self, b: bool) -> None:
         # use for lambda callback function
         self.keep_bottom = b
+
+    def set_dashboard_display(self, b: bool) -> None:
+        # use for lambda callback function. Copied.
+        self.display_dashboard = b
+        self.first_display = True
 
     def get_width(self):
         js = """

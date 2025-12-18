@@ -1,5 +1,7 @@
 from module.base.button import Button
 from module.base.decorator import cached_property
+# 此文件定义了 Alas 逻辑模块的最高基类 ModuleBase。
+# 作为所有具体功能模块（如出击、大世界、每日任务等）的公共祖先，它整合了 UI 导航、任务循环控制及基本异常处理逻辑。
 from module.base.timer import Timer
 from module.base.utils import *
 from module.combat.emotion import Emotion

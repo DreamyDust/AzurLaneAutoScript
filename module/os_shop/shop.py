@@ -1,3 +1,5 @@
+# 此文件是大世界（Operation Siren）商店购买行为的实际执行类。
+# 整合了港口商店与海域内明石商店的交互、购买确认逻辑，并记录行动力购买等大世界关键资源的变动明细。
 from module.base.decorator import cached_property
 from module.base.timer import Timer
 from module.combat.assets import GET_ITEMS_1
@@ -93,6 +95,67 @@ class OSShop(PortShop, AkashiShop):
                 return count
             else:
                 self.os_shop_buy_execute(button)
+                try:
+                    if not (getattr(self, 'is_in_task_cl1_leveling', False) and getattr(self, 'is_cl1_enabled', False)):
+                        logger.debug('Skipping akashi AP record because CL1 leveling is not active and/or cl1 mode not enabled')
+                    else:
+                        name = str(getattr(button, 'name', '') or '')
+                        name_l = name.lower()
+                        if 'actionpoint' in name_l or ('action' in name_l and 'point' in name_l):
+                            import re, json
+                            from datetime import datetime
+                            from pathlib import Path
+
+                            m = re.search(r"(\d+)", name)
+                            base = int(m.group(1)) if m else 0
+                            amount = int(getattr(button, 'amount', 1) or 1)
+                            bought_ap = base * amount
+
+                            from pathlib import Path as _Path
+                            project_root = _Path(__file__).resolve().parents[2]
+                            cl1_dir = project_root / 'log' / 'cl1'
+                            try:
+                                cl1_dir.mkdir(parents=True, exist_ok=True)
+                                fpath = cl1_dir / 'cl1_monthly.json'
+                            except Exception:
+                                log_dir = project_root / 'log'
+                                log_dir.mkdir(parents=True, exist_ok=True)
+                                fpath = log_dir / 'cl1_monthly.json'
+
+                            try:
+                                data = json.loads(fpath.read_text(encoding='utf-8')) if fpath.exists() else {}
+                            except Exception:
+                                data = {}
+
+                            key_prefix = datetime.now().strftime('%Y-%m')
+                            entries_key = f"{key_prefix}-akashi-ap-entries"
+                            ap_key = f"{key_prefix}-akashi-ap"
+
+                            entries = data.get(entries_key) if isinstance(data.get(entries_key), list) else []
+                            entries.append({
+                                'ts': datetime.now().isoformat(),
+                                'amount': int(bought_ap),
+                                'base': int(base),
+                                'count': int(amount),
+                                'source': 'akashi'
+                            })
+                            data[entries_key] = entries
+
+                            prev = int(data.get(ap_key, 0) or 0)
+                            data[ap_key] = prev + int(bought_ap)
+
+                            tmp = fpath.with_suffix('.tmp')
+                            try:
+                                tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+                                tmp.replace(fpath)
+                            except Exception:
+                                try:
+                                    fpath.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+                                except Exception:
+                                    logger.exception('Failed to persist akashi ap purchase to cl1_monthly.json')
+                except Exception:
+                    logger.exception('Error while recording akashi purchase')
+
                 count += 1
                 continue
 
@@ -267,10 +330,7 @@ class OSShop(PortShop, AkashiShop):
 
     @cached_property
     def yellow_coins_preserve(self):
-        if self.is_cl1_enabled:
-            return 100000
-        else:
-            return 35000
+        return self.config.OpsiHazard1Leveling_YellowCoinPreserve
 
     def get_currency_coins(self, item):
         if item.cost == 'YellowCoins':

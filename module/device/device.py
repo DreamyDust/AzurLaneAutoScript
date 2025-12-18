@@ -1,3 +1,5 @@
+# 此文件定义了 Device 类，是脚本与设备交互的综合管理入口。
+# 负责整合截图、点击、输入功能，并由于内置了防卡死检测和点击频率控制，能有效提高脚本自动化运行的稳定性。
 import collections
 from datetime import datetime
 
@@ -14,6 +16,7 @@ from module.base.timer import Timer
 from module.config.utils import get_server_next_update
 from module.device.app_control import AppControl
 from module.device.control import Control
+from module.device.input import Input
 from module.device.screenshot import Screenshot
 from module.exception import (EmulatorNotRunningError, GameNotRunningError, GameStuckError, GameTooManyClickError,
                               RequestHumanTakeover)
@@ -61,7 +64,7 @@ def show_function_call():
     logger.info('Function calls:' + ''.join(func_list))
 
 
-class Device(Screenshot, Control, AppControl):
+class Device(Screenshot, Control, AppControl, Input):
     _screen_size_checked = False
     detect_record = set()
     click_record = collections.deque(maxlen=15)
@@ -69,10 +72,10 @@ class Device(Screenshot, Control, AppControl):
     stuck_timer_long = Timer(180, count=180).start()
     stuck_long_wait_list = ['BATTLE_STATUS_S', 'PAUSE', 'LOGIN_CHECK']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, screenshot_queue=None, screenshot_enabled=None, **kwargs):
         for trial in range(4):
             try:
-                super().__init__(*args, **kwargs)
+                super().__init__(*args, screenshot_queue=screenshot_queue, screenshot_enabled=screenshot_enabled, **kwargs)
                 break
             except EmulatorNotRunningError:
                 if trial >= 3:
