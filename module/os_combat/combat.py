@@ -234,10 +234,14 @@ class Combat(Combat_, MapEventHandler):
             in: is_combat_loading()
             out: combat status
         """
-        # 记录战斗开始时间用于统计
+        # 记录战斗开始时间用于统计 (仅侵蚀1任务)
+        _is_cl1_battle = False
         try:
-            from module.statistics.ship_exp_stats import get_ship_exp_stats
-            get_ship_exp_stats().on_battle_start()
+            if hasattr(self, 'config') and hasattr(self.config, 'task'):
+                if self.config.task.command == 'OpsiHazard1Leveling':
+                    _is_cl1_battle = True
+                    from module.statistics.ship_exp_stats import get_ship_exp_stats
+                    get_ship_exp_stats().on_battle_start()
         except Exception:
             pass
         
@@ -297,11 +301,12 @@ class Combat(Combat_, MapEventHandler):
             
         logger.info('Combat end.')
         
-        # 记录战斗结束，统计耗时
-        try:
-            from module.statistics.ship_exp_stats import get_ship_exp_stats
-            get_ship_exp_stats().on_battle_end()
-        except Exception:
-            pass
+        # 记录战斗结束，统计耗时 (仅侵蚀1任务)
+        if _is_cl1_battle:
+            try:
+                from module.statistics.ship_exp_stats import get_ship_exp_stats
+                get_ship_exp_stats().on_battle_end()
+            except Exception:
+                pass
         
         return success
