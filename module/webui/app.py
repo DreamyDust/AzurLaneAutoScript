@@ -2251,46 +2251,59 @@ class AlasGUI(Frame):
 
         # Announcement check function - fetches from API and pushes to frontend
         self._last_announcement_id = None
+        self._announcement_queue = queue.Queue()
+        
+        def _fetch_announcement_async():
+            """Background thread function to fetch announcement from API"""
+            try:
+                # Add timestamp to bypass cache
+                timestamp = int(time.time())
+                resp = requests.get(
+                    f'https://alascloudapi.nanoda.work/api/get/announcement?t={timestamp}',
+                    timeout=10
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data and data.get('announcementId') and data.get('title') and data.get('content'):
+                        # Put the data in queue for main thread to process
+                        self._announcement_queue.put(data)
+            except Exception as e:
+                logger.debug(f"Announcement fetch failed: {e}")
+        
         def check_and_push_announcement():
-            def _fetch_announcement():
-                try:
-                    # Add timestamp to bypass cache
-                    timestamp = int(time.time())
-                    resp = requests.get(
-                        f'https://alascloudapi.nanoda.work/api/get/announcement?t={timestamp}',
-                        timeout=10
-                    )
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        if data and data.get('announcementId') and data.get('title') and data.get('content'):
-                            announcement_id = data['announcementId']
-                            # Only push if ID is different from the last one or not pushed yet
-                            if announcement_id != self._last_announcement_id:
-                                title_json = json.dumps(data['title'])
-                                content_json = json.dumps(data['content'])
-                                announcement_id_json = json.dumps(announcement_id)
-                                run_js(f"window.alasShowAnnouncement({title_json}, {content_json}, {announcement_id_json});")
-                                self._last_announcement_id = announcement_id
-                except Exception as e:
-                    logger.debug(f"Announcement check failed: {e}")
-            
-            # Run network request in background thread to prevent blocking GUI
-            thread = threading.Thread(target=_fetch_announcement, daemon=True)
+            """Start async fetch and process any queued announcements"""
+            # Start a new fetch in background thread
+            thread = threading.Thread(target=_fetch_announcement_async, daemon=True)
             thread.start()
+            
+            # Process any announcements that have been fetched
+            try:
+                while True:
+                    data = self._announcement_queue.get_nowait()
+                    announcement_id = data['announcementId']
+                    # Only push if ID is different from the last one or not pushed yet
+                    if announcement_id != self._last_announcement_id:
+                        title_json = json.dumps(data['title'])
+                        content_json = json.dumps(data['content'])
+                        announcement_id_json = json.dumps(announcement_id)
+                        run_js(f"window.alasShowAnnouncement({title_json}, {content_json}, {announcement_id_json});")
+                        self._last_announcement_id = announcement_id
+            except queue.Empty:
+                pass
 
         # Periodic announcement check generator
         def announcement_checker():
             th = yield  # Initial yield to get task handler reference
             # First check - happens after initial delay (5 seconds)
             check_and_push_announcement()
-            # After first check, set delay to 5 minutes for subsequent checks
+            # After first check, set delay to 30 seconds for subsequent checks
             th._task.delay = 30
             yield
             while True:
                 check_and_push_announcement()
                 yield
 
-        # Add announcement checker task (initial delay 1 second)
+        # Add announcement checker task (initial delay 30 seconds)
         self.task_handler.add(announcement_checker(), delay=30)
 
         # Return to previous page
