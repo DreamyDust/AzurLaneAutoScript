@@ -6,6 +6,7 @@ from sys import maxsize
 import inflection
 
 from module.base.timer import Timer
+from module.config.config import TaskEnd
 from module.config.utils import get_os_reset_remain
 from module.exception import CampaignEnd, GameTooManyClickError, MapWalkError, RequestHumanTakeover, ScriptError
 from module.exercise.assets import QUIT_RECONFIRM
@@ -1061,7 +1062,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
     def run_strategic_search(self):
         """
         Returns:
-            bool: True if completed normally, False if interrupted
+            bool: True if completed normally, False if interrupted (but not TaskEnd)
         """
         self.handle_ash_beacon_attack()
 
@@ -1071,6 +1072,9 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
             self.hp_reset()
             self.hp_get()
             return True  # 正常完成
+        except TaskEnd:
+            # 任务切换，让异常继续向上传播
+            raise
         except Exception as e:
             logger.warning(f'Strategic search interrupted: {e}')
             return False  # 被中断
