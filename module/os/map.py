@@ -942,6 +942,25 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
 
         return finished_combat
 
+    def _should_skip_siren_research(self, grid):
+        """
+        Check if siren research device should be skipped based on config.
+        
+        Args:
+            grid: The grid to check
+            
+        Returns:
+            bool: True if should skip (feature disabled), False otherwise
+        """
+        if hasattr(grid, 'is_scanning_device') and grid.is_scanning_device:
+            siren_research_enabled = getattr(self.config, 'OpsiSirenBug_SirenResearch_Enable', False)
+            if not siren_research_enabled:
+                logger.info(f'[预检查] 格子 {grid} 是塞壬研究装置,但功能未开启,跳过')
+                return True
+            else:
+                logger.info(f'[预检查] 格子 {grid} 是塞壬研究装置,功能已开启,继续处理')
+        return False
+
     def clear_question(self, drop=None):
         """
         Clear nearly (and 3 grids from above) question marks on radar.
@@ -968,6 +987,12 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
             self.view.show()
 
             grid = self.convert_radar_to_local(grid)
+            
+            # ========== 移动前检查：是否为塞壬研究装置且功能未开启 ==========
+            if self._should_skip_siren_research(grid):
+                self._solved_map_event.add('is_scanning_device')
+                return True
+            
             self.device.click(grid)
             with self.config.temporary(STORY_ALLOW_SKIP=False):
                 result = self.wait_until_walk_stable(
@@ -1353,9 +1378,9 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
         if 'is_scanning_device' not in self._solved_map_event and grids and grids[0].is_scanning_device:
             grid = grids[0]
             
-            # ========== 地图选择:发现扫描装置 ==========
-            logger.hr('发现扫描装置,开始处理', level=2)
-            logger.info(f'[地图选择] 在 {grid} 位置发现扫描装置')
+            # ========== 地图选择:发现研究装置 ==========
+            logger.hr('发现研究装置,开始处理', level=2)
+            logger.info(f'[地图选择] 在 {grid} 位置发现研究装置')
             
             siren_research_enabled = getattr(self.config, 'OpsiSirenBug_SirenResearch_Enable', False)
             if not siren_research_enabled:
@@ -1378,7 +1403,7 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
             
             if getattr(self, 'is_siren_device_confirmed', False):
                 # 执行自律寻敌
-                logger.info('[装置处理] info_handler 已确认为塞壬研究装置')
+                # 执行自律寻敌
                 logger.info('[装置处理] 执行自律寻敌')
                 self.os_auto_search_run(drop=drop)
 
@@ -1388,11 +1413,11 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 
                 self._solved_map_event.add('is_scanning_device')
                 
-                logger.info('[装置处理] 检查是否需要执行Bug利用')
-                self._handle_siren_bug_reinteract(drop=drop)
-            else:
-                logger.warning('[装置处理] 未确认为塞壬研究装置(可能是普通事件), 跳过后续处理')
-                self._solved_map_event.add('is_scanning_device')
+                if self.is_siren_device_confirmed:
+                    logger.info('[装置处理] 已确认为塞壬研究装置，检查是否需要执行Bug利用')
+                    self._handle_siren_bug_reinteract(drop=drop)
+                else:
+                    logger.info('[装置处理] 未确认为塞壬研究装置，跳过Bug利用')
             
             return True
 
