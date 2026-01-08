@@ -987,20 +987,19 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 while not option_wait_timer.reached():
                     self.device.screenshot()
                     options = self._story_option_buttons_2()
-                    # 【强化调试日志】
-                    logger.info('================================================')
+                    
                     logger.info(f'正在检测选项... 当前检测到: {len(options)} 个按钮')
-                    if len(options) >= 3:
-                        logger.info('>>> 满足3个选项条件, 进入OCR验证环节 <<<')
+                    
+                    if len(options) > 0:
+                        # 只要检测到选项就立即进行OCR验证
+                        logger.info(f'检测到 {len(options)} 个选项, 立即进行OCR验证')
                         if self._verify_siren_research_options(options):
-                            logger.info('✓ 验证成功!')
+                            logger.info('✓ OCR验证成功,确认为塞壬研究装置!')
                             options_verified = True
                             break
                         else:
-                            logger.warning('✗ 验证失败(文本不匹配)')
+                            logger.warning('✗ OCR验证失败(文本不匹配),不是塞壬研究装置')
                             break
-                    elif len(options) > 0:
-                        logger.info(f'选项数量不足({len(options)}), 继续等待...')
                     
                     time.sleep(0.5)
                 
@@ -1210,20 +1209,19 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
             while not option_wait_timer.reached():
                 self.device.screenshot()
                 options = self._story_option_buttons_2()
-                # 【强化调试日志】
-                logger.info('================================================')
+                
                 logger.info(f'正在检测选项... 当前检测到: {len(options)} 个按钮')
-                if len(options) >= 3:
-                    logger.info('>>> 满足3个选项条件, 进入OCR验证环节 <<<')
+                
+                if len(options) > 0:
+                    # 移动到装置后,只要检测到选项就立即进行OCR验证
+                    logger.info(f'检测到 {len(options)} 个选项, 立即进行OCR验证')
                     if self._verify_siren_research_options(options):
-                        logger.info('✓ 验证成功!')
+                        logger.info('✓ OCR验证成功,确认为塞壬研究装置!')
                         options_verified = True
                         break
                     else:
-                        logger.warning('✗ 验证失败(文本不匹配)')
+                        logger.warning('✗ OCR验证失败(文本不匹配),不是塞壬研究装置')
                         break
-                elif len(options) > 0:
-                    logger.info(f'选项数量不足({len(options)}), 继续等待...')
                 
                 time.sleep(0.5)
             
