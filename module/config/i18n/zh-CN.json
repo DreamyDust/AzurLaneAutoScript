@@ -4042,6 +4042,14 @@
       "help": "⚠️ 实验性功能 ⚠️\nBug利用期间临时禁用调度器的任务切换检查，避免被委托、日常等任务打断\n如果Bug利用过程中经常被其他到时任务中断，可以启用此选项",
       "True": "True",
       "False": "False"
+    },
+    "SirenBug_DailyCount": {
+      "name": "今日利用Bug次数",
+      "help": "今日已经利用塞壬Bug的次数，每次扫图前会Sleep对应秒数"
+    },
+    "SirenBug_DailyCountRecord": {
+      "name": "Bug次数记录时间",
+      "help": ""
     }
   },
   "OpsiCheckLeveling": {
