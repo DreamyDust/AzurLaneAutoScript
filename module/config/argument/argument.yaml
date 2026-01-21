@@ -1102,6 +1102,16 @@ OpsiScheduling:
     value: "500,1000,2000,3000"
     valuetype: str
 
+# =================== Island ====================
+IslandSeasonTask:
+  TaskDict:
+    type: textarea
+    value: |-
+IslandTechnology:
+  TechnologyStatus:
+    type: textarea
+    value: |-
+
 # ==================== Tools ====================
 
 Daemon:
