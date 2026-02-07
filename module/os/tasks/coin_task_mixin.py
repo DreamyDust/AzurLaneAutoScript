@@ -26,8 +26,8 @@ class CoinTaskMixin:
     
     # Configuration paths (shared constants to avoid hardcoding)
     CONFIG_PATH_CL1_PRESERVE = 'OpsiHazard1Leveling.OperationCoinsPreserve'
-    CONFIG_PATH_RETURN_THRESHOLD = 'OpsiScheduling.OperationCoinsReturnThreshold'
-    CONFIG_PATH_RETURN_THRESHOLD_APPLY_ALL = 'OpsiScheduling.OperationCoinsReturnThresholdApplyToAllCoinTasks'
+    CONFIG_PATH_RETURN_THRESHOLD = 'OpsiScheduling.OpsiScheduling.OperationCoinsReturnThreshold'
+    CONFIG_PATH_RETURN_THRESHOLD_APPLY_ALL = 'OpsiScheduling.OpsiScheduling.OperationCoinsReturnThresholdApplyToAllCoinTasks'
 
     # Task name used for "short cat" (meowfficer farming)
     TASK_NAME_MEOWFFICER_FARMING = 'OpsiMeowfficerFarming'
