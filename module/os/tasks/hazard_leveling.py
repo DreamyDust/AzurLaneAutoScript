@@ -68,75 +68,20 @@ class OpsiHazard1Leveling(OSMap):
 
     def check_and_notify_action_point_threshold(self):
         """
-        检查行动力是否跨越阈值并发送推送通知
-        
-        应在每次执行 action_point_set() 后调用此方法
-        
-        功能说明:
-            1. 从配置中读取阈值列表（如 500, 1000, 2000, 3000）
-            2. 判断当前行动力所在的阈值区间
-            3. 如果跨越了新的阈值区间，发送推送通知
-            4. 记录上次通知的阈值，避免重复推送
-            
-        示例:
-            - 行动力从 400 升至 600，会推送"升至500+"
-            - 行动力从 1200 降至 900，会推送"降至1000以下"
+        发送行动力推送通知（每次调用都发送）
         """
         # 检查是否启用智能调度
-        if not is_smart_scheduling_enabled(self.config):
-            return
+        # if not is_smart_scheduling_enabled(self.config):
+        #     return
                     
         # 获取当前行动力总量
         current_ap = self._action_point_total
         
-        # 解析配置的阈值列表
-        try:
-            levels_str = getattr(self.config, 'OpsiScheduling_ActionPointNotifyLevels', '500, 1000, 2000, 3000')
-            thresholds = [int(x.strip()) for x in levels_str.split(',')]
-        except Exception as e:
-            logger.warning(f"解析行动力阈值配置失败: {e}")
-            return
-        
-        # 确定当前所在的阈值区间
-        # 从高到低遍历阈值，找到第一个小于等于当前行动力的阈值
-        current_threshold = None
-        for threshold in sorted(thresholds, reverse=True):
-            if current_ap >= threshold:
-                current_threshold = threshold
-                break
-
-        # 查询是否为首次调用
-        if not hasattr(self, '_last_notified_ap_threshold'):
-            # 更新上次通知的阈值记录
-            self._last_notified_ap_threshold = current_threshold
-            return
-        
-        # 如果跨越了阈值区间，发送推送通知
-        if current_threshold != self._last_notified_ap_threshold:
-            if current_threshold is not None:
-                # 判断是升至还是降至该阈值
-                if self._last_notified_ap_threshold is None:
-                    direction = "升至"
-                elif self._last_notified_ap_threshold < current_threshold:
-                    # 行动力增加，升至更高阈值
-                    direction = "升至"
-                else:
-                    # 行动力减少，降至较低阈值
-                    direction = "降至"
-                
-                self.notify_push(
-                    title="[Alas] 行动力阈值变化",
-                    content=f"行动力{direction}{current_threshold}+ (当前: {current_ap})"
-                )
-            else:
-                # 降到最低阈值以下
-                lowest = min(thresholds)
-                self.notify_push(
-                    title="[Alas] 行动力阈值变化", 
-                    content=f"行动力降至{lowest}以下 (当前: {current_ap})"
-                )
-            # 更新上次通知的阈值记录
-            self._last_notified_ap_threshold = current_threshold
+        # 直接发送推送通知
+        self.notify_push(
+            title="[Alas] 行动力通知",
+            content=f"当前行动力: {current_ap}"
+        )
 
     def os_hazard1_leveling(self):
         logger.hr('OS hazard 1 leveling', level=1)

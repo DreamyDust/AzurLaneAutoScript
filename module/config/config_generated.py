@@ -702,7 +702,6 @@ class GeneratedConfig:
     OpsiScheduling_UseSmartSchedulingOperationCoinsPreserve = False  # True, False
     OpsiScheduling_OperationCoinsPreserve = 0
     OpsiScheduling_ActionPointPreserve = 500
-    OpsiScheduling_ActionPointNotifyLevels = '500,1000,2000,3000'
     OpsiScheduling_OperationCoinsReturnThreshold = 0
     OpsiScheduling_EnableMeowfficerFarming = True  # True, False
     OpsiScheduling_EnableObscure = False  # True, False

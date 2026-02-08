@@ -4154,10 +4154,6 @@
       "name": "OpsiScheduling.ActionPointPreserve.name",
       "help": "OpsiScheduling.ActionPointPreserve.help"
     },
-    "ActionPointNotifyLevels": {
-      "name": "OpsiScheduling.ActionPointNotifyLevels.name",
-      "help": "OpsiScheduling.ActionPointNotifyLevels.help"
-    },
     "OperationCoinsReturnThreshold": {
       "name": "OpsiScheduling.OperationCoinsReturnThreshold.name",
       "help": "OpsiScheduling.OperationCoinsReturnThreshold.help"
@@ -4490,7 +4486,6 @@
       "UseSmartSchedulingOperationCoinsPreserve": "Gui.OpsiScheduling.UseSmartSchedulingOperationCoinsPreserve",
       "OperationCoinsPreserve": "Gui.OpsiScheduling.OperationCoinsPreserve",
       "ActionPointPreserve": "Gui.OpsiScheduling.ActionPointPreserve",
-      "ActionPointNotifyLevels": "Gui.OpsiScheduling.ActionPointNotifyLevels",
       "OperationCoinsReturnThreshold": "Gui.OpsiScheduling.OperationCoinsReturnThreshold",
       "EnableMeowfficerFarming": "Gui.OpsiScheduling.EnableMeowfficerFarming",
       "EnableObscure": "Gui.OpsiScheduling.EnableObscure",

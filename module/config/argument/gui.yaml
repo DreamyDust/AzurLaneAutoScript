@@ -165,7 +165,7 @@ OpsiScheduling:
   UseSmartSchedulingOperationCoinsPreserve:
   OperationCoinsPreserve:
   ActionPointPreserve:
-  ActionPointNotifyLevels:
+
   OperationCoinsReturnThreshold:
   EnableMeowfficerFarming:
   EnableObscure:

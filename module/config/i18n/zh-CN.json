@@ -4154,10 +4154,6 @@
       "name": "短猫相接 保留 X 点行动力",
       "help": "行动力低于 X 后停止，自动打开行动力箱子，X 包含箱子中的行动力，建议保留1000行动力给侵蚀1练级"
     },
-    "ActionPointNotifyLevels": {
-      "name": "行动力推送阈值",
-      "help": "行动力升至或降至这些阈值时会发送推送通知\n使用逗号分隔多个阈值，例如: 500,1000,2000,3000\n注意：需要在 Alas - 错误处理 中配置推送通知才能生效"
-    },
     "OperationCoinsReturnThreshold": {
       "name": "获取 X 个作战补给凭证",
       "help": "在黄币获取任务时 共获取到 X 个作战补给凭证后返回侵蚀1练级"
@@ -4490,7 +4486,6 @@
       "UseSmartSchedulingOperationCoinsPreserve": "Gui.OpsiScheduling.UseSmartSchedulingOperationCoinsPreserve",
       "OperationCoinsPreserve": "Gui.OpsiScheduling.OperationCoinsPreserve",
       "ActionPointPreserve": "Gui.OpsiScheduling.ActionPointPreserve",
-      "ActionPointNotifyLevels": "Gui.OpsiScheduling.ActionPointNotifyLevels",
       "OperationCoinsReturnThreshold": "Gui.OpsiScheduling.OperationCoinsReturnThreshold",
       "EnableMeowfficerFarming": "Gui.OpsiScheduling.EnableMeowfficerFarming",
       "EnableObscure": "Gui.OpsiScheduling.EnableObscure",

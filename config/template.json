@@ -2245,7 +2245,6 @@
       "UseSmartSchedulingOperationCoinsPreserve": false,
       "OperationCoinsPreserve": 0,
       "ActionPointPreserve": 500,
-      "ActionPointNotifyLevels": "500,1000,2000,3000",
       "OperationCoinsReturnThreshold": 0,
       "EnableMeowfficerFarming": true,
       "EnableObscure": false,
