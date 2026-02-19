@@ -416,6 +416,30 @@
       "ScreenshotLength": {
         "type": "input",
         "value": 1
+      },
+      "GameStuckRestart": {
+        "type": "checkbox",
+        "value": false
+      },
+      "GameStuckThreshold": {
+        "type": "input",
+        "value": 3,
+        "validate": [
+          1,
+          10
+        ]
+      },
+      "AdbOfflineRestart": {
+        "type": "checkbox",
+        "value": false
+      },
+      "AdbOfflineThreshold": {
+        "type": "input",
+        "value": 3,
+        "validate": [
+          1,
+          10
+        ]
       }
     },
     "Optimization": {

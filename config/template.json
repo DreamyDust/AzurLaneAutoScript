@@ -88,7 +88,11 @@
       "SaveError": true,
       "StrictRestart": false,
       "OnePushConfig": "provider: null",
-      "ScreenshotLength": 1
+      "ScreenshotLength": 1,
+      "GameStuckRestart": false,
+      "GameStuckThreshold": 3,
+      "AdbOfflineRestart": false,
+      "AdbOfflineThreshold": 3
     },
     "Optimization": {
       "ScreenshotInterval": 0.3,

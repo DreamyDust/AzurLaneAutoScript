@@ -103,6 +103,10 @@ class GeneratedConfig:
     Error_StrictRestart = False
     Error_OnePushConfig = 'provider: null'
     Error_ScreenshotLength = 1
+    Error_GameStuckRestart = False
+    Error_GameStuckThreshold = 3
+    Error_AdbOfflineRestart = False
+    Error_AdbOfflineThreshold = 3
 
     # Group `Optimization`
     Optimization_ScreenshotInterval = 0.3

@@ -141,6 +141,14 @@ Error:
     mode: yaml
     value: "provider: null"
   ScreenshotLength: 1
+  GameStuckRestart: false
+  GameStuckThreshold:
+    value: 3
+    validate: [1, 10]
+  AdbOfflineRestart: false
+  AdbOfflineThreshold:
+    value: 3
+    validate: [1, 10]
 Optimization:
   ScreenshotInterval: 0.3
   CombatScreenshotInterval: 1.0
@@ -1191,4 +1199,5 @@ AzurLaneUncensored:
     display: disabled
 GameManager:
   AutoRestart: true
+
 

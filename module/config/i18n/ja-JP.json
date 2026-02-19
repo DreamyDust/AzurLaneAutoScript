@@ -47,8 +47,8 @@
       "help": ""
     },
     "Restart": {
-      "name": "再起動設定",
-      "help": ""
+      "name": "Task.Restart.name",
+      "help": "Task.Restart.help"
     },
     "Main": {
       "name": "メイン海域",
@@ -548,6 +548,22 @@
     "ScreenshotLength": {
       "name": "Error.ScreenshotLength.name",
       "help": "Error.ScreenshotLength.help"
+    },
+    "GameStuckRestart": {
+      "name": "Error.GameStuckRestart.name",
+      "help": "Error.GameStuckRestart.help"
+    },
+    "GameStuckThreshold": {
+      "name": "Error.GameStuckThreshold.name",
+      "help": "Error.GameStuckThreshold.help"
+    },
+    "AdbOfflineRestart": {
+      "name": "Error.AdbOfflineRestart.name",
+      "help": "Error.AdbOfflineRestart.help"
+    },
+    "AdbOfflineThreshold": {
+      "name": "Error.AdbOfflineThreshold.name",
+      "help": "Error.AdbOfflineThreshold.help"
     }
   },
   "Optimization": {

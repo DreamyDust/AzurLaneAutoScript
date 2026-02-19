@@ -16,6 +16,7 @@ Alas:
       - YukikazeTaskManager
     Restart:
       - Scheduler
+      - Restart
 Farm:
   menu: collapse
   page: setting
