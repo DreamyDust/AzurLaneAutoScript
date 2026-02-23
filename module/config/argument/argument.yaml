@@ -188,7 +188,7 @@ YukikazeTaskManager:
     type: textarea
     value: |-
       Restart
-      > OpsiCrossMonth
+      > OpsiCrossMonth > OpsiDailyDelay
       > Commission > Tactical > Research
       > Exercise
       > Dorm > Meowfficer > Guild > Gacha

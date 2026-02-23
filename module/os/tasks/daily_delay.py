@@ -395,8 +395,13 @@ class OpsiDailyDelay(OSMap):
         """
         任务结束处理
         
-        延迟到下次触发时间（0点前X分钟）
+        1. 返回大世界港区（如NY港区、利维浦港区等）
+        2. 延迟到下次触发时间（0点前X分钟）
+        3. 停止任务
         """
+        # 返回大世界港区
+        self._return_to_port()
+        
         # 获取提前触发时间
         trigger_minutes = self.config.cross_get(keys=self.CONFIG_PATH_TRIGGER_MINUTES)
         
@@ -422,6 +427,44 @@ class OpsiDailyDelay(OSMap):
         
         # 停止任务
         self.config.task_stop()
+    
+    def _return_to_port(self):
+        """
+        返回大世界港区
+        
+        如果当前不在港区，则导航到最近的港区（如NY港区、利维浦港区等）
+        """
+        try:
+            # 检查是否在大世界地图中
+            if not self.is_in_map() and not self.is_in_globe():
+                logger.info('不在大世界地图中，跳过返回港区')
+                return
+            
+            # 获取当前区域
+            current_zone = self.zone
+            
+            # 检查是否已经在港区
+            if current_zone.is_azur_port:
+                logger.info(f'已在港区: {current_zone}')
+                return
+            
+            # 获取最近的港区
+            nearest_port = self.zone_nearest_azur_port(current_zone)
+            logger.info(f'导航到最近的港区: {nearest_port}')
+            
+            # 导航到港区
+            self.globe_goto(nearest_port)
+            
+            # 进入港区
+            self.port_enter()
+            
+            # 退出港区（回到大世界地图）
+            self.port_quit()
+            
+            logger.info('成功返回港区')
+        except Exception as e:
+            logger.error(f'返回港区失败: {e}')
+            # 不抛出异常，允许任务继续执行
     
     def opsi_daily_delay(self):
         """
