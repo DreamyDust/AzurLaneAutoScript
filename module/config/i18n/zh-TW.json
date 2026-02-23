@@ -4578,12 +4578,6 @@
       "name": "OpsiDailyDelay._info.name",
       "help": "OpsiDailyDelay._info.help"
     },
-    "Enable": {
-      "name": "OpsiDailyDelay.Enable.name",
-      "help": "OpsiDailyDelay.Enable.help",
-      "True": "True",
-      "False": "False"
-    },
     "TriggerMinutesBeforeReset": {
       "name": "OpsiDailyDelay.TriggerMinutesBeforeReset.name",
       "help": "OpsiDailyDelay.TriggerMinutesBeforeReset.help"

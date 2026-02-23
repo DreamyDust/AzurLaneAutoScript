@@ -12840,14 +12840,6 @@
       }
     },
     "OpsiDailyDelay": {
-      "Enable": {
-        "type": "checkbox",
-        "value": false,
-        "option": [
-          true,
-          false
-        ]
-      },
       "TriggerMinutesBeforeReset": {
         "type": "input",
         "value": 5

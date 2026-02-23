@@ -722,7 +722,6 @@ class GeneratedConfig:
     OpsiScheduling_EnableStronghold = False  # True, False
 
     # Group `OpsiDailyDelay`
-    OpsiDailyDelay_Enable = False  # True, False
     OpsiDailyDelay_TriggerMinutesBeforeReset = 5
 
     # Group `IslandSeasonTask`

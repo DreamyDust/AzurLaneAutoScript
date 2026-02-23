@@ -16,7 +16,6 @@ OpsiDailyDelay - 大世界任务延后模块
 
 配置项:
     - Scheduler.Enable: 任务启用开关（启用此任务即启用大世界任务延后功能）
-    - OpsiDailyDelay.Enable: 功能总开关（默认禁用）
     - OpsiDailyDelay.TriggerMinutesBeforeReset: 提前触发时间（分钟，默认5，范围1-60）
 
 此模块包含:
@@ -26,7 +25,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-from module.config.utils import get_server_next_update
+from module.config.utils import get_os_next_reset
 from module.exception import ScriptError
 from module.logger import logger
 from module.os.map import OSMap
@@ -52,7 +51,6 @@ class OpsiDailyDelay(OSMap):
     STATUS_FILE = './log/opsi_daily_delay_status.json'
     
     # 配置路径常量
-    CONFIG_PATH_ENABLE = 'OpsiDailyDelay.OpsiDailyDelay.Enable'
     CONFIG_PATH_TRIGGER_MINUTES = 'OpsiDailyDelay.OpsiDailyDelay.TriggerMinutesBeforeReset'
     
     # ==================== 时间计算相关方法 ====================
@@ -67,8 +65,8 @@ class OpsiDailyDelay(OSMap):
         Returns:
             datetime: 触发时间（本地时间）
         """
-        # 获取下次0点时间（服务器时间）
-        next_reset = get_server_next_update("00:00")
+        # 获取下次0点时间（OS服务器时间）
+        next_reset = get_os_next_reset()
         
         # 计算触发时间（0点前X分钟）
         trigger_time = next_reset - timedelta(minutes=minutes_before_reset)
@@ -84,8 +82,8 @@ class OpsiDailyDelay(OSMap):
         Returns:
             datetime: 恢复时间（本地时间）
         """
-        # 获取下次0点时间（服务器时间）
-        next_reset = get_server_next_update("00:00")
+        # 获取下次0点时间（OS服务器时间）
+        next_reset = get_os_next_reset()
         
         # 恢复时间为0点后5分钟
         recovery_time = next_reset + timedelta(minutes=5)
@@ -421,24 +419,14 @@ class OpsiDailyDelay(OSMap):
         大世界任务延后主任务
         
         执行流程:
-        1. 检查功能是否启用
-        2. 计算触发时间
-        3. 等待到触发时间
-        4. 延后所有待执行的大世界任务
-        5. 等待到0点
-        6. 恢复所有延后的任务
-        7. 任务结束
+        1. 计算触发时间
+        2. 检查是否在触发时间窗口内
+        3. 延后所有待执行的大世界任务
+        4. 等待到0点
+        5. 恢复所有延后的任务
+        6. 任务结束
         """
         logger.hr('大世界任务延后', level=1)
-        
-        # 检查功能是否启用
-        enable = self.config.cross_get(keys=self.CONFIG_PATH_ENABLE)
-        if not enable:
-            logger.info('大世界任务延后功能未启用，跳过')
-            self.opsi_daily_delay_end()
-            return
-        
-        logger.info('大世界任务延后功能已启用')
         
         # 获取提前触发时间
         trigger_minutes = self.config.cross_get(keys=self.CONFIG_PATH_TRIGGER_MINUTES)
@@ -450,38 +438,32 @@ class OpsiDailyDelay(OSMap):
         
         logger.info(f'提前触发时间: {trigger_minutes}分钟')
         
-        # 计算触发时间
-        trigger_time = self._calculate_trigger_time(trigger_minutes)
+        # 计算触发时间和0点时间
+        next_reset = get_os_next_reset()
+        trigger_time = next_reset - timedelta(minutes=trigger_minutes)
         now = datetime.now()
         
-        # 检查触发时间
-        if trigger_time < now:
-            logger.error(f'触发时间 {trigger_time} 早于当前时间 {now}，跳过')
+        logger.attr('OpsiNextReset', next_reset)
+        
+        # 检查开始时间
+        if next_reset < now:
+            raise ScriptError(f'Invalid OpsiNextReset: {next_reset} < {now}')
+        if next_reset - now > timedelta(days=3):
+            logger.error('Too long to next reset, OpSi might reset already. '
+                         'Running OpsiDailyDelay is meaningless, stopped.')
             self.opsi_daily_delay_end()
-            return
-        
-        if trigger_time - now > timedelta(hours=24):
-            logger.error(f'触发时间 {trigger_time} 距离当前时间超过24小时，跳过')
+        if next_reset - now > timedelta(minutes=trigger_minutes):
+            logger.error(f'Too long to next reset ({(next_reset - now).total_seconds() / 60:.0f} minutes), '
+                         f'too far from OpSi reset (should be within {trigger_minutes} minutes). '
+                         'Running OpsiDailyDelay is meaningless, stopped.')
             self.opsi_daily_delay_end()
-            return
         
-        # 等待到触发时间
-        logger.hr('等待到触发时间', level=1)
-        logger.info(f'等待到 {trigger_time}')
-        while True:
-            now = datetime.now()
-            remain = (trigger_time - now).total_seconds()
-            
-            if remain <= 0:
-                break
-            
-            logger.info(f'剩余时间: {remain:.0f}秒')
-            self.device.sleep(min(remain, 60))
-        
-        logger.hr('触发时间到达', level=2)
+        # Now we are X minutes before OpSi reset
+        logger.hr('Wait until OpSi reset', level=1)
+        logger.warning('ALAS is now waiting for next OpSi reset, please DO NOT touch the game during wait')
         
         # 计算恢复时间（0点后5分钟）
-        recovery_time = self._calculate_recovery_time()
+        recovery_time = next_reset + timedelta(minutes=5)
         
         # 延后所有待执行的大世界任务
         logger.hr('延后大世界任务', level=1)
@@ -492,21 +474,17 @@ class OpsiDailyDelay(OSMap):
         else:
             logger.info('没有需要延后的大世界任务')
         
-        # 等待到0点
-        logger.hr('等待到0点', level=1)
-        next_reset = get_server_next_update("00:00")
-        logger.info(f'等待到 {next_reset}')
         while True:
+            logger.info(f'Wait until {next_reset}')
             now = datetime.now()
             remain = (next_reset - now).total_seconds()
-            
             if remain <= 0:
                 break
-            
-            logger.info(f'剩余时间: {remain:.0f}秒')
-            self.device.sleep(min(remain, 60))
+            else:
+                self.device.sleep(min(remain, 60))
+                continue
         
-        logger.hr('0点到达', level=2)
+        logger.hr('OpSi reset', level=2)
         
         # 等待5分钟，确保服务器重启完成
         logger.hr('等待服务器重启完成', level=1)
