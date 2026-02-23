@@ -25,7 +25,7 @@ import json
 import os
 from datetime import datetime, timedelta
 
-from module.config.utils import get_os_next_reset
+from module.config.utils import get_server_next_update
 from module.exception import ScriptError
 from module.logger import logger
 from module.os.map import OSMap
@@ -65,8 +65,8 @@ class OpsiDailyDelay(OSMap):
         Returns:
             datetime: 触发时间（本地时间）
         """
-        # 获取下次0点时间（OS服务器时间）
-        next_reset = get_os_next_reset()
+        # 获取下次0点时间（服务器时间）
+        next_reset = get_server_next_update("00:00")
         
         # 计算触发时间（0点前X分钟）
         trigger_time = next_reset - timedelta(minutes=minutes_before_reset)
@@ -82,8 +82,8 @@ class OpsiDailyDelay(OSMap):
         Returns:
             datetime: 恢复时间（本地时间）
         """
-        # 获取下次0点时间（OS服务器时间）
-        next_reset = get_os_next_reset()
+        # 获取下次0点时间（服务器时间）
+        next_reset = get_server_next_update("00:00")
         
         # 恢复时间为0点后5分钟
         recovery_time = next_reset + timedelta(minutes=5)
@@ -405,8 +405,17 @@ class OpsiDailyDelay(OSMap):
             logger.error('提前触发时间配置无效，使用默认值5分钟')
             trigger_minutes = 5
         
-        # 计算下次触发时间
-        next_trigger_time = self._calculate_trigger_time(trigger_minutes)
+        # 计算下次触发时间（下一天的0点前X分钟）
+        next_reset = get_server_next_update("00:00")
+        # 如果当前时间已经过了0点前X分钟，则计算下一天的触发时间
+        now = datetime.now()
+        next_trigger_time = next_reset - timedelta(minutes=trigger_minutes)
+        
+        # 如果触发时间已经过去，则跳到下一天
+        if next_trigger_time < now:
+            # 获取下一天的0点时间
+            next_reset = next_reset + timedelta(days=1)
+            next_trigger_time = next_reset - timedelta(minutes=trigger_minutes)
         
         # 延迟到下次触发时间
         self.config.task_delay(target=next_trigger_time)
@@ -439,7 +448,7 @@ class OpsiDailyDelay(OSMap):
         logger.info(f'提前触发时间: {trigger_minutes}分钟')
         
         # 计算触发时间和0点时间
-        next_reset = get_os_next_reset()
+        next_reset = get_server_next_update("00:00")
         trigger_time = next_reset - timedelta(minutes=trigger_minutes)
         now = datetime.now()
         
@@ -452,11 +461,13 @@ class OpsiDailyDelay(OSMap):
             logger.error('Too long to next reset, OpSi might reset already. '
                          'Running OpsiDailyDelay is meaningless, stopped.')
             self.opsi_daily_delay_end()
+            return
         if next_reset - now > timedelta(minutes=trigger_minutes):
             logger.error(f'Too long to next reset ({(next_reset - now).total_seconds() / 60:.0f} minutes), '
                          f'too far from OpSi reset (should be within {trigger_minutes} minutes). '
                          'Running OpsiDailyDelay is meaningless, stopped.')
             self.opsi_daily_delay_end()
+            return
         
         # Now we are X minutes before OpSi reset
         logger.hr('Wait until OpSi reset', level=1)
