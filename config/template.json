@@ -2438,7 +2438,6 @@
       "ServerUpdate": "00:00"
     },
     "OpsiDailyDelay": {
-      "Enable": false,
       "TriggerMinutesBeforeReset": 5
     },
     "Storage": {
