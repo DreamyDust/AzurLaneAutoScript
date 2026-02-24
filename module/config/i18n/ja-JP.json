@@ -278,6 +278,10 @@
       "name": "Cross Month Daily",
       "help": "    ALAS will enter OpSi 10min before OpSi reset, wait until OpSi reset but not exit OpSi. Then do the daily, obscure, abyssal and meowfficer farming to get extra gold plates. When running dailies, settings in task \"OpSiDaily\" are used, the rest function are the same.\n    IMPORTANT: Please do not touch the game while ALAS is waiting for OpSi reset."
     },
+    "OpsiDailyDelay": {
+      "name": "Task.OpsiDailyDelay.name",
+      "help": "Task.OpsiDailyDelay.help"
+    },
     "IslandInfo": {
       "name": "Task.IslandInfo.name",
       "help": "Task.IslandInfo.help"
@@ -4567,6 +4571,31 @@
       "help": "OpsiScheduling.EnableStronghold.help",
       "True": "True",
       "False": "False"
+    }
+  },
+  "OpsiDailyDelay": {
+    "_info": {
+      "name": "OpsiDailyDelay._info.name",
+      "help": "OpsiDailyDelay._info.help"
+    },
+    "TriggerMinutesBeforeReset": {
+      "name": "OpsiDailyDelay.TriggerMinutesBeforeReset.name",
+      "help": "OpsiDailyDelay.TriggerMinutesBeforeReset.help",
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "10": "10",
+      "15": "15",
+      "20": "20",
+      "30": "30",
+      "45": "45",
+      "60": "60"
     }
   },
   "IslandSeasonTask": {
