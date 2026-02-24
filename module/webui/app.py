@@ -579,6 +579,7 @@ class AlasGUI(Frame):
                         # 显示效率统计
                         put_row([
                             put_text(f"平均战斗时间: {avg_battle_time:.1f}秒"),
+                            put_text(f"平均一轮侵蚀1时长: {avg_battle_time * 2:.1f}秒"),
                             put_text(f"经验效率: {exp_per_hour:.0f}/小时"),
                         ])
                         
