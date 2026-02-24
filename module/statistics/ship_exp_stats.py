@@ -29,6 +29,7 @@ class ShipExpStats:
     }
     
     MAX_BATTLE_TIME_SAMPLES = 100  # 保留最近100场战斗时间样本
+    MAX_ROUND_TIME_SAMPLES = 50   # 保留最近50轮清理的时间样本
     MAX_DAILY_STATS_DAYS = 30      # 保留最近30天的统计
     
     def __init__(self, path: Optional[Path] = None, instance_name: Optional[str] = None):
@@ -177,19 +178,50 @@ class ShipExpStats:
         """获取平均每场战斗时间(秒)"""
         return self.data.get('battle_times', {}).get('average', 52.0)
     
+    def record_round_time(self, duration: float) -> None:
+        """记录单轮清理的总时长"""
+        if 'round_times' not in self.data:
+            self.data['round_times'] = {'samples': [], 'average': 0.0}
+        
+        samples = self.data['round_times']['samples']
+        samples.append(round(duration, 2))
+        
+        # 只保留最近N个样本
+        if len(samples) > self.MAX_ROUND_TIME_SAMPLES:
+            self.data['round_times']['samples'] = samples[-self.MAX_ROUND_TIME_SAMPLES:]
+            samples = self.data['round_times']['samples']
+        
+        # 更新平均值
+        if samples:
+            self.data['round_times']['average'] = round(sum(samples) / len(samples), 2)
+        
+        self._save()
+
+    def get_average_round_time(self) -> float:
+        """获取平均每轮清理时间(秒)"""
+        # 如果没有保存的轮次数据, 则退化为 2 * 平均战斗耗时 (考虑一点损耗)
+        if 'round_times' in self.data and self.data['round_times'].get('average'):
+            return self.data['round_times']['average']
+        
+        # 默认值: 2.1倍平均战斗耗时 (估算)
+        return self.get_average_battle_time() * 2.1
+
     def get_exp_per_hour(self) -> float:
         """
         获取经验效率 (经验/小时)
-        优先使用今日数据，否则计算最近7天平均
+        优先使用基于一轮(Round)时长的实时效率，否则使用历史数据
         """
+        # 1. 优先使用基于最新的 Round 平均时长的理论值 (最符合当前环境)
+        avg_round_time = self.get_average_round_time()
+        avg_exp_per_round = 312 * 2  # 一轮包含2场战斗，平均经验
+        
+        if avg_round_time > 0:
+            rounds_per_hour = 3600 / avg_round_time
+            return rounds_per_hour * avg_exp_per_round
+            
+        # 2. 如果没有 Round 数据，尝试使用今日/历史统计 (这部分目前只计入纯战斗时间)
         if 'daily_stats' not in self.data or not self.data['daily_stats']:
-            # 无统计数据，使用理论值估算
-            avg_battle_time = self.get_average_battle_time()
-            avg_exp_per_battle = 312  # 平均每场经验
-            if avg_battle_time > 0:
-                battles_per_hour = 3600 / avg_battle_time
-                return battles_per_hour * avg_exp_per_battle
-            return 22000.0  # 默认值
+            return 22000.0  # 默认保底值
         
         today = date.today().isoformat()
         

@@ -546,6 +546,7 @@ class AlasGUI(Frame):
                     current_battles = get_opsi_stats_func(instance_name=instance_name).summary().get('total_battles', 0)
                     target_level = stats.data.get('target_level', 125)
                     avg_battle_time = stats.get_average_battle_time()
+                    avg_round_time = stats.get_average_round_time()
                     exp_per_hour = stats.get_exp_per_hour()
                     today_stats = stats.get_today_stats()
                     
@@ -579,7 +580,7 @@ class AlasGUI(Frame):
                         # 显示效率统计
                         put_row([
                             put_text(f"平均战斗时间: {avg_battle_time:.1f}秒"),
-                            put_text(f"平均一轮侵蚀1时长: {avg_battle_time * 2:.1f}秒"),
+                            put_text(f"平均一轮(含加载)时长: {avg_round_time:.1f}秒"),
                             put_text(f"经验效率: {exp_per_hour:.0f}/小时"),
                         ])
                         
