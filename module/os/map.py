@@ -685,6 +685,14 @@ class OSMap(OSFleet, Map, GlobeCamera, StorageHandler, StrategicSearchHandler):
                 if self._auto_search_round_timer:
                     cost = round(time.time() - self._auto_search_round_timer, 2)
                     logger.attr('CL1 time cost', f'{cost}s/round')
+                    
+                    if is_cl1_task and is_cl1_enabled:
+                        try:
+                            from module.statistics.ship_exp_stats import get_ship_exp_stats
+                            get_ship_exp_stats(instance_name=_instance_name).record_round_time(cost)
+                        except Exception:
+                            logger.exception('Failed to record cl1 round time')
+                            
                 self._auto_search_round_timer = time.time()
 
     def get_current_cl1_battle_count(self):
