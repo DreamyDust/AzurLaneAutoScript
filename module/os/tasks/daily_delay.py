@@ -391,7 +391,7 @@ class OpsiDailyDelay(OSMap):
 
             # 核心修复：只有在距离0点重置还有 1 小时以内时，才执行延后动作
             # 避免在0点重置后的收尾流程中，误将任务再次推后到明天的0点
-            if (next_reset - now) > timedelta(hours=1):
+            if (next_reset - now) > timedelta(minutes=65):
                 return
             
             # 计算延后时间（0点后5分钟）
